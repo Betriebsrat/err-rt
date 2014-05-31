@@ -1,0 +1,9 @@
+[Core]
+Name = RT
+Module = rtbot
+    
+[Documentation]
+Description = Interface to Request Tracker (RT)
+
+[Python]
+Version = 2
