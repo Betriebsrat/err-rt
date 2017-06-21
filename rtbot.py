@@ -61,9 +61,10 @@ class RTBot(errbot.BotPlugin):
             raise Exception("RT_PASSWORD must be specified.")
 
         try:
-            self.tracker = rt.Rt('%s/REST/1.0/' % config['RT_URL'])
+            self.tracker = rt.Rt('%s/REST/1.0/' % config['RT_URL'], config['RT_USERNAME'],
+                                 config['RT_PASSWORD'])
             # FIXME: if False, too(?)
-            self.tracker.login(config['RT_USERNAME'], config['RT_PASSWORD'])
+            self.tracker.login()
         except Exception as e:
             self.tracker = None
             raise Exception("Unable to connect to RT as %s: %s." % (
@@ -76,11 +77,11 @@ class RTBot(errbot.BotPlugin):
     # Helpers
 
     def login(self):
-        if self.tracker:
+        if self.tracker.login_result:
             return
 
-        self.tracker = rt.Rt('%s/REST/1.0/' % self.config['RT_URL'])
-        self.tracker.login(self.config['RT_USERNAME'], self.config['RT_PASSWORD'])
+        self.tracker = rt.Rt('%s/REST/1.0/' % self.config['RT_URL'], self.config['RT_USERNAME'], self.config['RT_PASSWORD'])
+        self.tracker.login()
 
     def ticket_summary(self, num):
         self.login()
@@ -117,10 +118,13 @@ class RTBot(errbot.BotPlugin):
 
     def callback_message(self, msg):
         matches = self.TICKET_NUM_REGEX.search(msg.body)
+        if msg.is_direct:
+            target = str(msg.frm)
+        else:
+            target = str(msg.to)
         if matches:
             for ticket in matches.groups():
-                self.send(msg.frm, self.ticket_summary(ticket),
-                          message_type=msg.type)
+                self.send(self.build_identifier(target), self.ticket_summary(ticket))
 
     ####################################################################################################################
     # Botcommands
