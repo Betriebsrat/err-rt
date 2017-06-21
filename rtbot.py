@@ -26,10 +26,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
-import errbot
-from errbot import botcmd
 import rt
 import time
+
+import errbot
+from errbot import botcmd
 
 
 class RTBot(errbot.BotPlugin):
@@ -135,7 +136,7 @@ class RTBot(errbot.BotPlugin):
                 yield self.ticket_summary(ticket['id'].split('/')[1])
             yield "I found " + str(len(matches)) + " results total."
         else:
-            yield "Sorry i did not found any tickets with the subject: " + args
+            yield "Sorry i did not find any tickets with the subject: " + args
 
     @botcmd
     def rt_newbodies(self, msg, args):
