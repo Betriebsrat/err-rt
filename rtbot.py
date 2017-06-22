@@ -95,7 +95,7 @@ class RTBot(errbot.BotPlugin):
     def action_report(self, msg, num):
         self.login()
         text = "Chatops: Change from %s in %s at %s. Used Command: %s" % (
-        msg.frm, msg.type, time.strftime("%d.%m.%Y %H:%M:%S"), msg.body)
+        msg.frm.nick, msg.frm.room, time.strftime("%d.%m.%Y %H:%M:%S"), msg.body)
         self.tracker.comment(num, text=text)
 
     def validate_ticket(self, num):
