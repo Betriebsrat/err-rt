@@ -3,7 +3,7 @@ Name = rt
 Module = rtbot
     
 [Documentation]
-Description = Interface to Request Tracker (RT)
+Description = Interface for Request Tracker (RT)
 
 [Python]
 Version = 3

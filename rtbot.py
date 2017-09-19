@@ -80,7 +80,8 @@ class RTBot(errbot.BotPlugin):
         if self.tracker.login_result:
             return
 
-        self.tracker = rt.Rt('%s/REST/1.0/' % self.config['RT_URL'], self.config['RT_USERNAME'], self.config['RT_PASSWORD'])
+        self.tracker = rt.Rt('%s/REST/1.0/' % self.config['RT_URL'], self.config['RT_USERNAME'],
+                             self.config['RT_PASSWORD'])
         self.tracker.login()
 
     def ticket_summary(self, num):
@@ -94,8 +95,8 @@ class RTBot(errbot.BotPlugin):
 
     def action_report(self, msg, num):
         self.login()
-        text = "Chatops: Change from %s in %s at %s. Used Command: %s" % (
-        msg.frm.nick, msg.frm.room, time.strftime("%d.%m.%Y %H:%M:%S"), msg.body)
+        text = "Chatops: Change from %s at %s. Used Command: %s" % (
+            msg.frm, time.strftime("%d.%m.%Y %H:%M:%S"), msg.body)
         self.tracker.comment(num, text=text)
 
     def validate_ticket(self, num):
@@ -154,7 +155,6 @@ class RTBot(errbot.BotPlugin):
         else:
             yield "There aren't any tickets with status 'new' AND owner 'nobody'"
 
-
     @botcmd(split_args_with=None)
     def rt_spam(self, msg, args):
         """Closes ticket and sets custom SPAM field to true. Usage : !rt spam <id>"""
@@ -165,12 +165,11 @@ class RTBot(errbot.BotPlugin):
         t_id = args[0]
 
         if self.validate_ticket(t_id):
-            self.tracker.edit_ticket(t_id, Status='resolved', CF_Kontakt='SPAM')
+            self.tracker.edit_ticket(t_id, Status='resolved', Queue='SPAM')
             self.action_report(msg, t_id)
             return "Successfully closed Ticket: #" + t_id
         else:
-           return "Something unexpected happened."
-
+            return "Something unexpected happened."
 
     @botcmd(split_args_with=None)
     def rt_give(self, msg, args):
@@ -186,4 +185,4 @@ class RTBot(errbot.BotPlugin):
             self.action_report(msg, t_id)
             return "Successfully changed owner of %s to %s." % (t_id, t_owner)
         else:
-           return "Something unexpected happened."
+            return "Something unexpected happened."
