@@ -28,6 +28,7 @@
 import re
 import rt
 import time
+import logging
 
 import errbot
 from errbot import botcmd
@@ -41,6 +42,13 @@ class RTBot(errbot.BotPlugin):
 
     ####################################################################################################################
     # Configuration
+
+    def activate(self):
+        if not self.config:
+            self.log.info('RTBot is not configured. Activation delayed.')
+            return
+        self.logger = logging
+        super(RTBot, self).activate()
 
     def get_configuration_template(self):
         return {
@@ -88,10 +96,7 @@ class RTBot(errbot.BotPlugin):
         self.login()
         t = self.tracker.get_ticket(num)
         return "%s: %s (%s) in %s, owned by %s (%s/%s)" % (
-            num, t.get("Subject", "No subject"),
-            t["Status"], t["Queue"], t["Owner"],
-            self.config['RT_URL'], num
-        )
+            num, t.get("Subject", "No subject"), t["Status"], t["Queue"], t["Owner"], self.config['RT_URL'], num)
 
     def action_report(self, msg, num):
         self.login()
@@ -165,11 +170,18 @@ class RTBot(errbot.BotPlugin):
         t_id = args[0]
 
         if self.validate_ticket(t_id):
-            self.tracker.edit_ticket(t_id, Status='resolved', Queue='SPAM')
-            self.action_report(msg, t_id)
-            return "Successfully closed Ticket: #" + t_id
-        else:
-            return "Something unexpected happened."
+            # This is absolutely not who you do error handling.
+            # But rt forced me to:
+            # :returns: ``False``
+            # "Ticket with given ID does not exist or unknown parameter
+            #  was set (in this case all other valid fields are changed)"
+            try:
+                self.tracker.edit_ticket(t_id, Status='resolved', Queue='SPAM')
+            except Exception as e:
+                self.log.error("!rt spam error: {}".format(e))
+            finally:
+                self.action_report(msg, t_id)
+                return "Successfully closed Ticket: #" + t_id
 
     @botcmd(split_args_with=None)
     def rt_give(self, msg, args):
